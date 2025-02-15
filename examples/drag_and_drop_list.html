@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        p {
+            white-space: pre-wrap;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            width: 250px;
+            border: 1px solid #ccc;
+        }
+
+        li {
+            /* padding: 10px; */
+            /* margin: 20px; */
+            background: lightgray;
+            cursor: grab;
+            border: 1px solid #000;
+        }
+
+        .placeholder {
+            background: rgba(0, 0, 0, 0.1);
+            border: 2px dashed #000;
+        }
+    </style>
+</head>
+
+<body>
+</body>
+
+<script type="module">
+    import van from '/third-party/van.js';
+    import DragAndDropList from '/components/DragAndDropList.js';
+
+    const { a, button, div, h1, li, p, ul } = van.tags;
+
+    function app() {
+        const items = van.state([
+            { text: 'lorem' },
+            { text: 'lorem ipsum' },
+            { text: 'lorem\nipsum' },
+            { text: 'lorem\nipsum\nipsum' },
+            { text: 'lorem' },
+            // repeated
+            { text: 'lorem' },
+            { text: 'lorem ipsum' },
+            { text: 'lorem\nipsum' },
+            { text: 'lorem\nipsum\nipsum' },
+            { text: 'lorem' },
+            { text: 'lorem' },
+            { text: 'lorem ipsum' },
+            { text: 'lorem\nipsum' },
+            { text: 'lorem\nipsum\nipsum' },
+            { text: 'lorem' },
+            { text: 'lorem' },
+            { text: 'lorem ipsum' },
+            { text: 'lorem\nipsum' },
+            { text: 'lorem\nipsum\nipsum' },
+            { text: 'lorem' },
+            { text: 'lorem' },
+            { text: 'lorem ipsum' },
+            { text: 'lorem\nipsum' },
+            { text: 'lorem\nipsum\nipsum' },
+            { text: 'lorem' },
+        ]);
+
+        return DragAndDropList({ class: 'max-h-152', onupdate }, items.val.map(item => p(item.text))); // no need to re-render
+
+        function onupdate(originalIndex, newIndex) {
+            const clone = [...items.val];
+            const [movedItem] = clone.splice(originalIndex, 1);
+            clone.splice(newIndex, 0, movedItem);
+            items.val = clone;
+        }
+    }
+
+    van.add(document.body, app());
+</script>
+
+</html>

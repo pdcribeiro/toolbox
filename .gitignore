@@ -1,0 +1,15 @@
+*
+
+!components/
+!components/**
+
+!examples/
+!examples/**
+
+!lib/
+!lib/**
+
+!notes/
+!notes/**
+
+!style.css

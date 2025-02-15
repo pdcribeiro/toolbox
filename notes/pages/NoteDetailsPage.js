@@ -62,12 +62,18 @@ function Name({ id, name }) {
   }
 
   function onmount() {
-    document.addEventListener('visibilitychange', save);
+    document.addEventListener('visibilitychange', saveOnHide);
+  }
+
+  function saveOnHide() {
+    if (document.hidden) {
+      save();
+    }
   }
 
   async function onunmount() {
     await save();
-    document.removeEventListener('visibilitychange', save);
+    document.removeEventListener('visibilitychange', saveOnHide);
   }
 }
 

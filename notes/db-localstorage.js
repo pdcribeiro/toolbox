@@ -1,4 +1,4 @@
-import kvstore from './kvstore.js';
+import store from '/lib/store.js';
 
 const CONFIG_KEY = 'notes-database-config';
 const COLLECTION_KEY = 'notes-database-collection';
@@ -55,21 +55,21 @@ window.migrateDb = function (callback) {
 };
 
 function get() {
-  return kvstore.get(COLLECTION_KEY) ?? [];
+  return store.get(COLLECTION_KEY) ?? [];
 }
 
 function set(notes) {
-  kvstore.set(COLLECTION_KEY, notes);
+  store.set(COLLECTION_KEY, notes);
 }
 
 function getNextId() {
-  const config = kvstore.get(CONFIG_KEY) ?? {};
+  const config = store.get(CONFIG_KEY) ?? {};
   if (!config.nextId) {
     config.nextId = 1;
   } else {
     config.nextId += 1;
   }
-  kvstore.set(CONFIG_KEY, config);
+  store.set(CONFIG_KEY, config);
   return config.nextId;
 }
 

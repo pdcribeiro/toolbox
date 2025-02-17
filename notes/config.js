@@ -1,4 +1,4 @@
-import kvstore from './kvstore.js';
+import store from '/lib/store.js';
 
 const CONFIG_KEY = 'notes-config';
 const DEFAULT_CONFIG = {
@@ -14,9 +14,9 @@ const DEFAULT_CONFIG = {
 
 export default {
   load() {
-    return kvstore.get(CONFIG_KEY) ?? DEFAULT_CONFIG;
+    return store.get(CONFIG_KEY) ?? DEFAULT_CONFIG;
   },
   save(config) {
-    kvstore.set(CONFIG_KEY, config);
+    store.set(CONFIG_KEY, config);
   },
 };

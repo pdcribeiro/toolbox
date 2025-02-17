@@ -3,9 +3,9 @@
 ## next
 
 - feat: edit text in place
-  - edit description in place
-- feat: drag and drop description elements (eg. headings, paragraphs, bullet points)
-  - convert description into content field with array of content items (or collection of content items)
+  - edit content in place
+- feat: drag and drop content elements (eg. headings, paragraphs, bullet points)
+  - convert content into content field with array of content items (or collection of content items)
 
 test
 - access token refresh on load when expired

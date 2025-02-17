@@ -83,7 +83,7 @@ export default db;
 
 // SEEDS
 
-// await db.createNote({ name: 'effleurage', description: 'lorem ipsum', images: [], tags: [] });
+// await db.createNote({ name: 'effleurage', content: 'lorem ipsum', images: [], tags: [] });
 
 // import seeds from './seeds.json'
 // localStorage.setItem(CONFIG_KEY, seeds.config)

@@ -11,7 +11,7 @@ export default function NoteForm({ initialData = {}, onsubmit, oncancel }) {
 
   const textData = van.state({
     name: '',
-    description: '',
+    content: '',
     tags: '',
     ...initialTextData,
   });
@@ -19,7 +19,7 @@ export default function NoteForm({ initialData = {}, onsubmit, oncancel }) {
 
   return div(
     label('name'), input(bind(textData, 'name')),
-    label('description'), textarea({ rows: 12, ...bind(textData, 'description') }),
+    label('content'), textarea({ rows: 12, ...bind(textData, 'content') }),
     label('pictures'), input({ type: 'file', multiple: true, onchange: loadImages }),
     () => Pictures({ pictures: pictures.val, onupdate: updatePictures }),
     label('tags'), textarea(bind(textData, 'tags')),

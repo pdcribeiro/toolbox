@@ -40,6 +40,6 @@ const db = {
   },
 };
 
-// await db.createNote({ name: 'hip key', description: 'just do it' });
+// await db.createNote({ name: 'hip key', content: 'just do it' });
 
 export default db;

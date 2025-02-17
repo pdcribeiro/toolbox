@@ -31,10 +31,10 @@ function Header({ id }) {
   }
 }
 
-function NoteDetails({ id, name, description, pictures, tags }) {
+function NoteDetails({ id, name, content, pictures, tags }) {
   return div(
     Name({ id, name }),
-    Description({ description }),
+    Content({ content }),
     Pictures({ pictures }),
     p(tags)
   );
@@ -77,9 +77,9 @@ function Name({ id, name }) {
   }
 }
 
-function Description({ description }) {
+function Content({ content }) {
   return div({ class: 'mb-8' },
-    description.split('\n').map((line) => {
+    content.split('\n').map((line) => {
       if (!line.trim().length) {
         return null; // ignore empty lines
       }

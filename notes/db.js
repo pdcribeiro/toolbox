@@ -7,13 +7,13 @@ const db = getDatabase(NOTES_DATABASE);
 
 const migrations = [
   {
-    // timestamp: 1739813379103,
+    timestamp: 1739813379103,
     migrate: () => {
       db.updateMany(NOTES_COLLECTION, {
         filter: { description: { $exists: true } },
         update: {
-          $set: { content: "$description" },
-          $unset: { description: "" }
+          $set: { content: '$description' }, // note: didn't work. set content to the string '$description'
+          $unset: { description: '' }
         }
       });
     }

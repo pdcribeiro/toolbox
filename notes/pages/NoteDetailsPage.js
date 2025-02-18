@@ -32,32 +32,26 @@ function Header({ id }) {
 }
 
 function NoteDetails({ id, name, content, pictures, tags }) {
-  return div(
-    Name({ id, name }),
-    Content({ content }),
-    Pictures({ pictures }),
-    p(tags)
-  );
-}
-
-function Name({ id, name }) {
-  let unsaved = false;
+  let unsaved = {};
 
   const saveWithDebounce = debounce(save, DEBOUNCE_DELAY);
 
-  const element = h1({ contenteditable: true, class: 'outline-none', oninput }, name);
-
-  return LifecycleManager({ onmount, onunmount }, element);
+  return LifecycleManager({ onmount, onunmount },
+    Name({ id, name, oninput }),
+    Content({ content, oninput }),
+    Pictures({ pictures }),
+    Tags({ tags, oninput }),
+  );
 
   async function save() {
-    if (unsaved) {
-      await db.updateNote(id, { name: element.textContent });
-      unsaved = false;
+    if (Object.keys(unsaved).length) {
+      await db.updateNote(id, unsaved);
+      unsaved = {};
     }
   }
 
-  function oninput() {
-    unsaved = true;
+  function oninput(inputData) {
+    unsaved = { ...unsaved, ...inputData };
     saveWithDebounce();
   }
 
@@ -77,29 +71,41 @@ function Name({ id, name }) {
   }
 }
 
-function Content({ content }) {
-  return div({ class: 'mb-8' },
-    content.map((line) => {
-      if (!line.trim().length) {
-        return null; // ignore empty lines
-      }
-      const headingMatch = line.match(/^(#+) \w/);
-      if (headingMatch) {
-        const level = headingMatch[1].length;
-        const heading = van.tags[`h${level}`];
-        const text = line.slice(level + 1);
-        return heading(text);
-      }
-      return p({ class: 'whitespace-pre-wrap' }, line);
-    })
+function Name({ name, oninput }) {
+  return h1({ contenteditable: true, class: 'outline-none', oninput: (e) => oninput({ name: e.target.textContent }) }, name);
+}
+
+function Content({ content, ...props }) {
+  return div({ class: 'mb-8', oninput },
+    content.map((text) => ContentItem({ text }))
   );
+
+  function oninput(event) {
+    const content = Array.from(event.currentTarget.children).map((item) => item.textContent);
+    props.oninput({ content });
+  }
+}
+
+function ContentItem({ text }) {
+  const headingMatch = text.match(/^(#+) \w/);
+  if (headingMatch) {
+    const level = headingMatch[1].length;
+    const heading = van.tags[`h${level}`];
+    const text = text.slice(level + 1);
+    return heading({ contenteditable: true, class: 'outline-none' }, text);
+  }
+  return p({ contenteditable: true, class: 'min-h-4 whitespace-pre-wrap outline-none' }, text);
 }
 
 function Pictures({ pictures }) {
-  return div({ class: 'overflow-x-auto text-nowrap snap-x' },
+  return div({ class: 'overflow-x-auto whitespace-nowrap snap-x' },
     pictures.map((pic) => div({ class: 'inline-block w-full snap-center' },
       img({ src: pic.url, class: 'block mx-auto h-screen/2' }),
       p({ class: 'overflow-y-auto h-14 text-center whitespace-pre-wrap' }, pic.description),
     ))
   );
+}
+
+function Tags({ tags, oninput }) {
+  return p({ contenteditable: true, class: 'outline-none', oninput: (e) => oninput({ tags: e.target.textContent }) }, tags);
 }

@@ -4,8 +4,8 @@
 
 - feat: edit text in place
   - convert content into drag and drop list
-  - edit content in place
-  - edit tags in place
+  - create new item on enter
+  - delete or merge with previous item on delete at start of line
 
 test
 - access token refresh on load when expired

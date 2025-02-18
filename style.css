@@ -10,7 +10,7 @@
 }
 
 html {
-    font-size: calc(15px + 0.390625vw);
+    font-size: calc(15px + 0.3vw);
     color: var(--color);
     background-color: var(--bg-color);
 }
@@ -240,6 +240,9 @@ button.small,
 .h-screen\/2 {
     height: 50vh;
 }
+.min-h-4 {
+    min-height: 1rem;
+}
 .min-h-48 {
     min-height: 12rem;
 }
@@ -265,7 +268,7 @@ button.small,
 .text-center {
     text-align: center;
 }
-.text-nowrap {
+.whitespace-nowrap {
     white-space: nowrap;
 }
 .whitespace-pre-wrap {

@@ -1,3 +1,4 @@
+import { getDragAndDropList } from '/components/DragAndDropList.js';
 import LifecycleManager from '/components/LifecycleManager.js';
 import { debounce } from '/lib/functions.js';
 import { confirmAnd } from '/lib/utils.js';
@@ -76,13 +77,16 @@ function Name({ name, oninput }) {
 }
 
 function Content({ content, ...props }) {
-  return div({ class: 'mb-8', oninput },
+  const { list, addItem, removeItem } = getDragAndDropList(
+    { class: 'mb-8', oninput, onupdate: oninput },
     content.map((text) => ContentItem({ text }))
   );
 
-  function oninput(event) {
-    const content = Array.from(event.currentTarget.children).map((item) => item.textContent);
-    props.oninput({ content });
+  return list;
+
+  function oninput() {
+    const newContent = Array.from(list.children).map((item) => item.textContent);
+    props.oninput({ content: newContent });
   }
 }
 
@@ -94,7 +98,7 @@ function ContentItem({ text }) {
     const text = text.slice(level + 1);
     return heading({ contenteditable: true, class: 'outline-none' }, text);
   }
-  return p({ contenteditable: true, class: 'min-h-4 whitespace-pre-wrap outline-none' }, text);
+  return p({ contenteditable: true, class: 'whitespace-pre-wrap outline-none' }, text);
 }
 
 function Pictures({ pictures }) {

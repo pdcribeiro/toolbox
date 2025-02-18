@@ -14,16 +14,20 @@ export function getDragAndDropList(...args) {
 
   let dragTimeout, draggedItem, dragStartY, dragStartScrollTop, virtualList, lastCursorY, scrollAnimation;
 
-  const eventListeners = {
-    onpointerdown, onpointerup,
-    ontouchstart: preventDefault, onmousedown: preventDefault, ondragstart: preventDefault,
-  };
-
   const list = ul({ ...props, class: `overflow-y-auto list-none p-0 ${props.class ?? ''}` },
     children.map((item) => wrapItem(item)),
   );
 
   return { list, addItem, removeItem };
+
+  function wrapItem(element) {
+    return li({
+      onpointerdown,
+      onpointerup,
+      ontouchstart: preventDefault,
+      ondragstart: preventDefault,
+    }, element);
+  }
 
   function onpointerdown(event) {
     dragTimeout = setTimeout(() => {
@@ -31,6 +35,7 @@ export function getDragAndDropList(...args) {
       draggedItem = this;
       draggedItem.style.position = 'relative';
       draggedItem.style.zIndex = '1';
+      draggedItem.style.background = 'var(--color-neutral)';
       draggedItem.style.opacity = '0.5';
       dragStartY = event.clientY;
       dragStartScrollTop = list.scrollTop;
@@ -144,6 +149,7 @@ export function getDragAndDropList(...args) {
     draggedItem.style.position = 'static';
     draggedItem.style.top = '';
     draggedItem.style.zIndex = '';
+    draggedItem.style.background = '';
     draggedItem.style.opacity = '';
     draggedItem = null;
     virtualList.forEach(resetTranslation);
@@ -151,10 +157,6 @@ export function getDragAndDropList(...args) {
     if (draggedIndex !== originalIndex) {
       onupdate(originalIndex, draggedIndex);
     }
-  }
-
-  function wrapItem(element) {
-    return li(eventListeners, element);
   }
 
   function addItem(element, index) {

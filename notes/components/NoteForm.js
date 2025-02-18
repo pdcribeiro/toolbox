@@ -20,7 +20,7 @@ export default function NoteForm({ initialData = {}, onsubmit, oncancel }) {
   return div(
     label('name'), input(bind(textData, 'name')),
     label('content'), textarea({ rows: 12, ...bind(textData, 'content') }),
-    Pictures({ pictures, onupdate: updatePictures }),
+    () => Pictures({ pictures, onupdate: updatePictures }),
     label('tags'), textarea(bind(textData, 'tags')),
     button({ onclick: submit }, 'save'),
     button({ class: 'ml-4', onclick: oncancel }, 'cancel'),

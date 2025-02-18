@@ -3,9 +3,11 @@
 ## next
 
 - feat: edit text in place
-  - convert content into drag and drop list
   - create new item on enter
   - delete or merge with previous item on delete at start of line
+
+- fix: when moving before/after empty line, it's hard to see where item will fall
+  - option 1: show horizontal line where item will go (instead of moving placeholder)
 
 test
 - access token refresh on load when expired

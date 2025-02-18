@@ -3,8 +3,8 @@
 ## next
 
 - feat: edit text in place
-  - create new item on enter
   - delete or merge with previous item on delete at start of line
+  - create necessary items when pasting text with new line characters
 
 - fix: when moving before/after empty line, it's hard to see where item will fall
   - option 1: show horizontal line where item will go (instead of moving placeholder)

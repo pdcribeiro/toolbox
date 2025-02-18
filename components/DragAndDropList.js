@@ -18,7 +18,14 @@ export function getDragAndDropList(...args) {
     children.map((item) => wrapItem(item)),
   );
 
-  return { list, addItem, removeItem };
+  return {
+    list,
+    getIndex: (element) => getChildren().indexOf(element.parentElement),
+    addItem: (element, index) => index < list.children.length
+      ? list.insertBefore(wrapItem(element), list.children[index])
+      : list.appendChild(wrapItem(element)),
+    removeItem: (index) => list.removeChild(list.children[index]),
+  };
 
   function wrapItem(element) {
     return li({
@@ -157,14 +164,6 @@ export function getDragAndDropList(...args) {
     if (draggedIndex !== originalIndex) {
       onupdate(originalIndex, draggedIndex);
     }
-  }
-
-  function addItem(element, index) {
-    list.insertBefore(wrapItem(element), list.children[index]);
-  }
-
-  function removeItem(index) {
-    list.removeChild(list.children[index]);
   }
 }
 

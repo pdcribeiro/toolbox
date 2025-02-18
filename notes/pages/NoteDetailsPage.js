@@ -7,6 +7,7 @@ import { routes } from '../app.js';
 import db from '../db.js';
 
 const DEBOUNCE_DELAY = 2000;
+const ENTER_KEY = 'Enter';
 
 const { a, button, div, h1, p, img } = van.tags;
 
@@ -77,8 +78,8 @@ function Name({ name, oninput }) {
 }
 
 function Content({ content, ...props }) {
-  const { list, addItem, removeItem } = getDragAndDropList(
-    { class: 'mb-8', oninput, onupdate: oninput },
+  const { list, getIndex, addItem, removeItem } = getDragAndDropList(
+    { class: 'mb-8', oninput, onkeydown, onupdate: oninput },
     content.map((text) => ContentItem({ text }))
   );
 
@@ -87,6 +88,25 @@ function Content({ content, ...props }) {
   function oninput() {
     const newContent = Array.from(list.children).map((item) => item.textContent);
     props.oninput({ content: newContent });
+  }
+
+  function onkeydown(event) {
+    if (event.key === ENTER_KEY) {
+      event.preventDefault();
+
+      const currentItem = event.target;
+      const selection = window.getSelection();
+      const currentItemText = currentItem.textContent.slice(0, selection.anchorOffset);
+      const newItemText = currentItem.textContent.slice(selection.focusOffset);
+
+      currentItem.textContent = currentItemText; // note: changes seletion
+
+      const newItem = ContentItem({ text: newItemText });
+      const index = getIndex(currentItem);
+      addItem(newItem, index + 1);
+
+      oninput();
+    }
   }
 }
 

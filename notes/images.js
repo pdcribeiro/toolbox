@@ -1,5 +1,5 @@
-const CLOUD_NAME = 'notes';
-const UPLOAD_PRESET = 'notes';
+const CLOUD_NAME = 'nootes';
+const UPLOAD_PRESET = 'nootes';
 
 export default {
   async upload(file) {

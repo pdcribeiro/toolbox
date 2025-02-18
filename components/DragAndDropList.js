@@ -7,21 +7,23 @@ const SCROLL_AMOUNT = 10;
 const { li, ul } = van.tags;
 
 // note: must set height to allow scroll
-export default function DragAndDropList(...args) {
+export function getDragAndDropList(...args) {
   console.debug('[DragAndDropList] rendering...');
 
   const [{ onupdate, ...props }, ...children] = parseComponentArgs(args);
 
   let dragTimeout, draggedItem, dragStartY, dragStartScrollTop, virtualList, lastCursorY, scrollAnimation;
 
+  const eventListeners = {
+    onpointerdown, onpointerup,
+    ontouchstart: preventDefault, onmousedown: preventDefault, ondragstart: preventDefault,
+  };
+
   const list = ul({ ...props, class: `overflow-y-auto list-none p-0 ${props.class ?? ''}` },
-    children.map((item) => li({
-      onpointerdown, onpointerup,
-      ontouchstart: preventDefault, onmousedown: preventDefault, ondragstart: preventDefault,
-    }, item)),
+    children.map((item) => wrapItem(item)),
   );
 
-  return list;
+  return { list, addItem, removeItem };
 
   function onpointerdown(event) {
     dragTimeout = setTimeout(() => {
@@ -32,11 +34,15 @@ export default function DragAndDropList(...args) {
       draggedItem.style.opacity = '0.5';
       dragStartY = event.clientY;
       dragStartScrollTop = list.scrollTop;
-      virtualList = [...list.children];
+      virtualList = getChildren();
       lastCursorY = dragStartY;
 
       document.addEventListener('pointermove', handleDrag);
     }, CLICK_AND_HOLD_TIME);
+  }
+
+  function getChildren() {
+    return Array.from(list.children);
   }
 
   function handleDrag(event) {
@@ -106,7 +112,7 @@ export default function DragAndDropList(...args) {
 
   function translate(element, displacement) {
     const newIndex = virtualList.indexOf(element);
-    const originalIndex = [...list.children].indexOf(element);
+    const originalIndex = getChildren().indexOf(element);
     const actualDisplacement = newIndex !== originalIndex ? displacement : 0;
     element.style.transition = 'transform 0.5s ease-in-out';
     element.style.transform = `translateY(${actualDisplacement}px)`;
@@ -126,7 +132,7 @@ export default function DragAndDropList(...args) {
     stopScroll();
 
     const draggedIndex = virtualList.indexOf(draggedItem);
-    const listItems = [...list.children];
+    const listItems = getChildren();
     const originalIndex = listItems.indexOf(draggedItem);
     const sibling = listItems[draggedIndex];
     if (draggedIndex < originalIndex) {
@@ -145,6 +151,18 @@ export default function DragAndDropList(...args) {
     if (draggedIndex !== originalIndex) {
       onupdate(originalIndex, draggedIndex);
     }
+  }
+
+  function wrapItem(element) {
+    return li(eventListeners, element);
+  }
+
+  function addItem(element, index) {
+    list.insertBefore(wrapItem(element), list.children[index]);
+  }
+
+  function removeItem(index) {
+    list.removeChild(list.children[index]);
   }
 }
 

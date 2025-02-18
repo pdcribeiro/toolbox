@@ -1,8 +1,8 @@
-import { getLocalFileUrl } from '/lib/files.js';
-import van from '/third-party/van.js';
-import DragAndDropList from '/components/DragAndDropList.js';
+import { getDragAndDropList } from '/components/DragAndDropList.js';
 import Modal from '/components/Modal.js';
+import { getLocalFileUrl } from '/lib/files.js';
 import { bind, confirmAnd } from '/lib/utils.js';
+import van from '/third-party/van.js';
 
 const { button, div, input, label, textarea, img } = van.tags;
 
@@ -20,20 +20,11 @@ export default function NoteForm({ initialData = {}, onsubmit, oncancel }) {
   return div(
     label('name'), input(bind(textData, 'name')),
     label('content'), textarea({ rows: 12, ...bind(textData, 'content') }),
-    label('pictures'), input({ type: 'file', multiple: true, onchange: loadImages }),
-    () => Pictures({ pictures: pictures.val, onupdate: updatePictures }),
+    Pictures({ pictures, onupdate: updatePictures }),
     label('tags'), textarea(bind(textData, 'tags')),
     button({ onclick: submit }, 'save'),
     button({ class: 'ml-4', onclick: oncancel }, 'cancel'),
   );
-
-  async function loadImages(event) {
-    const newPictures = await Promise.all([...event.target.files].map(async (file) => {
-      const url = await getLocalFileUrl(file);
-      return { file, url, description: '', unsaved: true };
-    }));
-    updatePictures([...pictures.val, ...newPictures]);
-  }
 
   function updatePictures(updatedPictures) {
     pictures.val = updatedPictures;
@@ -48,26 +39,38 @@ export default function NoteForm({ initialData = {}, onsubmit, oncancel }) {
 function Pictures({ pictures, onupdate }) {
   const selected = van.state(null);
   const editing = van.state(null);
-  return div({ class: 'mb-4' },
-    DragAndDropList({ class: 'flex flex-col gap-4 items-center max-h-152', onupdate: handleMove },
-      pictures.map((pic) =>
-        div({ class: 'relative' },
-          img({ src: pic.url, class: 'block p-2 min-h-48 size-48 border', onclick: () => selected.val = pic }),
-          () => pic === selected.val ?
-            div(
-              div({ class: 'overlay bg-transparent', onclick: unselect }),
-              div({ class: 'overlay flex absolute flex-col justify-center items-center bg-theme' },
-                div(
-                  button({ onclick: openEditModal }, 'edit'),
-                  button({ class: 'ml-4', onclick: confirmAndDelete }, 'delete'),
-                ),
-              ),
-            ) : div(),
-        ),
-      )
-    ),
-    () => editing.val ? EditModal({ picture: editing.val, onupdate: updatePicture, onclose: () => editing.val = null }) : div(),
+
+  const { list, addItem, removeItem } = getDragAndDropList(
+    { class: 'flex flex-col gap-4 items-center max-h-152', onupdate: handleMove },
+    pictures.val.map(getNewPictureElement)
   );
+
+  return div({ class: 'mb-4' },
+    label('pictures'), input({ type: 'file', multiple: true, onchange: loadImages }),
+    list,
+    () => editing.val ? EditModal({
+      picture: editing.val,
+      onupdate: updatePicture,
+      ondelete: deletePicture,
+      onclose: () => editing.val = null
+    }) : div(),
+  );
+
+  function getNewPictureElement(pic) {
+    return div({ class: 'relative' },
+      img({ src: pic.url, class: 'block p-2 min-h-48 size-48 border', onclick: () => selected.val = pic }),
+      () => pic === selected.val ?
+        div(
+          div({ class: 'overlay bg-transparent', onclick: unselect }),
+          div({ class: 'overlay flex absolute flex-col justify-center items-center bg-theme' },
+            div(
+              button({ onclick: openEditModal }, 'edit'),
+              button({ class: 'ml-4', onclick: confirmAndDelete }, 'delete'),
+            ),
+          ),
+        ) : div(),
+    );
+  }
 
   function unselect() {
     selected.val = null;
@@ -79,23 +82,37 @@ function Pictures({ pictures, onupdate }) {
   }
 
   function confirmAndDelete() {
-    confirmAnd(() => onupdate(pictures.filter((p) => p !== selected.val)));
+    confirmAnd(() => deletePicture(selected.val));
     unselect();
   }
 
+  function deletePicture(picture) {
+    removeItem(pictures.val.indexOf(picture));
+    onupdate(pictures.val.filter((p) => p !== picture));
+  }
+
   function handleMove(originalIndex, newIndex) {
-    const clone = [...pictures];
+    const clone = [...pictures.val];
     const [movedItem] = clone.splice(originalIndex, 1);
     clone.splice(newIndex, 0, movedItem);
     onupdate(clone);
   }
 
   function updatePicture(picture) {
-    onupdate(pictures.map((p) => (p === editing.val ? picture : p)).filter((p) => !p.deleted));
+    onupdate(pictures.val.map((p) => (p === editing.val ? picture : p)));
+  }
+
+  async function loadImages(event) {
+    const newPictures = await Promise.all([...event.target.files].map(async (file) => {
+      const url = await getLocalFileUrl(file);
+      return { file, url, description: '', unsaved: true };
+    }));
+    newPictures.map(getNewPictureElement).forEach((pic, i) => addItem(pic, pictures.val.length + i));
+    onupdate([...pictures.val, ...newPictures]);
   }
 }
 
-function EditModal({ onupdate, onclose, ...props }) {
+function EditModal({ onupdate, ondelete, onclose, ...props }) {
   const picture = van.state(props.picture);
   return Modal({ onclose },
     () => img({ src: picture.val.url, class: 'block mx-auto mb-4 max-h-screen/2' }),
@@ -120,7 +137,7 @@ function EditModal({ onupdate, onclose, ...props }) {
 
   function confirmAndDelete() {
     confirmAnd(() => {
-      onupdate({ ...props.picture, deleted: true });
+      ondelete(props.picture);
       onclose();
     });
   }

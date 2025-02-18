@@ -79,7 +79,7 @@ function Name({ id, name }) {
 
 function Content({ content }) {
   return div({ class: 'mb-8' },
-    content.split('\n').map((line) => {
+    content.map((line) => {
       if (!line.trim().length) {
         return null; // ignore empty lines
       }

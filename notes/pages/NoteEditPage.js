@@ -15,14 +15,19 @@ export default function NoteEditPage({ param: id }) {
     () => note.val
       ? div(
         h1(note.val.name),
-        NoteForm({ initialData: note.val, onsubmit, oncancel: confirmAndCancel }),
+        NoteForm({
+          initialData: { ...note.val, content: note.val.content.join('\n') },
+          onsubmit,
+          oncancel: confirmAndCancel
+        }),
       )
       : p('loading note data...')
   );
 
-  async function onsubmit(noteData) {
+  async function onsubmit({ id, name, tags, ...rest }) {
+    const content = rest.content.split('\n');
     const pictures = await Promise.all(
-      noteData.pictures.map(async (pic) => {
+      rest.pictures.map(async (pic) => {
         if (pic.unsaved) {
           const { id, url } = await images.upload(pic.file);
           return { id, url, description: pic.description };
@@ -31,7 +36,7 @@ export default function NoteEditPage({ param: id }) {
         }
       })
     );
-    await db.updateNote(id, { ...noteData, pictures });
+    await db.updateNote(id, { id, name, content, pictures, tags });
     routes.noteDetails.visit(id);
   }
 

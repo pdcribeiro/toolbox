@@ -3,7 +3,6 @@
 ## next
 
 - feat: edit text in place
-  - convert content into content field with array of content items
   - convert content into drag and drop list
   - edit content in place
   - edit tags in place

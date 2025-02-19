@@ -5,8 +5,7 @@
 - feat: edit text in place
   - set cursor in right place on enter and backspace
   - create necessary items when pasting text with new line characters
-  - prevent drag on click and hold
-    - clearTimeout if cursor moves
+- fix: allow text selection on touch devices
 
 - fix: when moving before/after empty line, it's hard to see where item will fall
   - option 1: show horizontal line where item will go (instead of moving placeholder)

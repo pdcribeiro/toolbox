@@ -31,6 +31,7 @@ export function getDragAndDropList(...args) {
     return li({
       onpointerdown,
       onpointerup,
+      onpointermove,
       ontouchstart: preventDefault,
       ondragstart: preventDefault,
     }, element);
@@ -163,6 +164,12 @@ export function getDragAndDropList(...args) {
 
     if (draggedIndex !== originalIndex) {
       onupdate(originalIndex, draggedIndex);
+    }
+  }
+
+  function onpointermove() {
+    if (dragTimeout) {
+      clearTimeout(dragTimeout);
     }
   }
 }

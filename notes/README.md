@@ -3,8 +3,10 @@
 ## next
 
 - feat: edit text in place
-  - delete or merge with previous item on delete at start of line
+  - set cursor in right place on enter and backspace
   - create necessary items when pasting text with new line characters
+  - prevent drag on click and hold
+    - clearTimeout if cursor moves
 
 - fix: when moving before/after empty line, it's hard to see where item will fall
   - option 1: show horizontal line where item will go (instead of moving placeholder)

@@ -8,6 +8,7 @@ import db from '../db.js';
 
 const DEBOUNCE_DELAY = 2000;
 const ENTER_KEY = 'Enter';
+const BACKSPACE_KEY = 'Backspace';
 
 const { a, button, div, h1, p, img } = van.tags;
 
@@ -91,21 +92,34 @@ function Content({ content, ...props }) {
   }
 
   function onkeydown(event) {
+    const currentItem = event.target;
+    const currentItemIndex = getIndex(currentItem);
+    const selection = window.getSelection();
+
     if (event.key === ENTER_KEY) {
       event.preventDefault();
 
-      const currentItem = event.target;
-      const selection = window.getSelection();
       const currentItemText = currentItem.textContent.slice(0, selection.anchorOffset);
       const newItemText = currentItem.textContent.slice(selection.focusOffset);
 
       currentItem.textContent = currentItemText; // note: changes seletion
 
       const newItem = ContentItem({ text: newItemText });
-      const index = getIndex(currentItem);
-      addItem(newItem, index + 1);
+      addItem(newItem, currentItemIndex + 1);
 
       oninput();
+    } else if (event.key === BACKSPACE_KEY) {
+      if (currentItemIndex > 0 && selection.anchorOffset + selection.focusOffset === 0) {
+        event.preventDefault();
+
+        const previousItemText = list.children[currentItemIndex - 1].textContent + currentItem.textContent;
+        const previousItemReplacement = ContentItem({ text: previousItemText });
+        removeItem(currentItemIndex - 1);
+        addItem(previousItemReplacement, currentItemIndex - 1);
+        removeItem(currentItemIndex);
+
+        oninput();
+      }
     }
   }
 }

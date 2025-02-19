@@ -5,7 +5,9 @@
 - feat: edit text in place
   - set cursor in right place on enter and backspace
   - create necessary items when pasting text with new line characters
-- fix: allow text selection on touch devices
+- fix: allow text selection on touch devices and dragging selected text on mouse devices
+  - keep track of editing boolean state and prevent click and hold drag when editing
+    - event.stopPropagation()
 
 - fix: when moving before/after empty line, it's hard to see where item will fall
   - option 1: show horizontal line where item will go (instead of moving placeholder)

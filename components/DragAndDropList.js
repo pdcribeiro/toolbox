@@ -33,7 +33,6 @@ export function getDragAndDropList(...args) {
       onpointerup,
       onpointermove,
       ontouchstart: preventDefault,
-      ondragstart: preventDefault,
     }, element);
   }
 

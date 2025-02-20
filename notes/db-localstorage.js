@@ -4,6 +4,11 @@ const CONFIG_KEY = 'notes-database-config';
 const COLLECTION_KEY = 'notes-database-collection';
 
 const db = {
+  async connect() {
+    console.log('[dev db] dummy connect');
+    migrate();
+    seed();
+  },
   async findNotes() {
     return get();
   },
@@ -48,12 +53,6 @@ const db = {
   },
 };
 
-window.migrateDb = function (callback) {
-  const notes = get();
-  const migrated = callback(notes);
-  set(migrated);
-};
-
 function get() {
   return store.get(COLLECTION_KEY) ?? [];
 }
@@ -78,13 +77,26 @@ export default db;
 
 // MIGRATIONS
 
-// migrateDb(notes => notes.map(s => ({...s, pictures: s.pictures.map(pic => ({...pic, description: pic.description ?? ''}))})))
+function migrate() {
+  // applyMigration((notes) => notes.map(s => ({...s, pictures: s.pictures.map(pic => ({...pic, description: pic.description ?? ''}))})))
+}
+
+function applyMigration(callback) {
+  const notes = get();
+  const migrated = callback(notes);
+  set(migrated);
+};
 
 
 // SEEDS
 
-// await db.createNote({ name: 'effleurage', content: 'lorem ipsum', images: [], tags: [] });
-
 // import seeds from './seeds.json'
-// localStorage.setItem(CONFIG_KEY, seeds.config)
-// localStorage.setItem(COLLECTION_KEY, seeds.notes)
+
+function seed() {
+  // store.set(COLLECTION_KEY, []);
+
+  // localStorage.setItem(CONFIG_KEY, seeds.config)
+  // localStorage.setItem(COLLECTION_KEY, seeds.notes)
+
+  // await db.createNote({ name: 'effleurage', content: 'lorem ipsum', images: [], tags: [] });
+}

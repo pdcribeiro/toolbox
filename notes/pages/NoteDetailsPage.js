@@ -94,7 +94,7 @@ function Content({ content, ...props }) {
   function onkeydown(event) {
     const currentItem = event.target;
     const currentItemIndex = getIndex(currentItem);
-    const selection = window.getSelection();
+    const selection = document.getSelection();
 
     if (event.key === ENTER_KEY) {
       event.preventDefault();
@@ -125,14 +125,41 @@ function Content({ content, ...props }) {
 }
 
 function ContentItem({ text }) {
+  const eventListeners = {
+    onmousedown: handlePointerDown,
+    ontouchstart: handlePointerDown,
+    onblur,
+  };
   const headingMatch = text.match(/^(#+) \w/);
   if (headingMatch) {
     const level = headingMatch[1].length;
     const heading = van.tags[`h${level}`];
     const text = text.slice(level + 1);
-    return heading({ contenteditable: true, class: 'outline-none' }, text);
+    return heading({ contenteditable: true, class: 'outline-none', ...eventListeners }, text);
+  } else {
+    return p({ contenteditable: true, class: 'whitespace-pre-wrap outline-none', ...eventListeners }, text);
   }
-  return p({ contenteditable: true, class: 'whitespace-pre-wrap outline-none' }, text);
+}
+
+function handlePointerDown(event) {
+  if (isCursorInside(event.target)) {
+    event.stopPropagation(); // prevent drag when editing
+  }
+}
+
+function isCursorInside(element) {
+  const selection = document.getSelection();
+  if (!selection.rangeCount) {
+    return false;
+  }
+  const range = selection.getRangeAt(0);
+  return element.contains(range.commonAncestorContainer);
+}
+
+function onblur(event) {
+  if (isCursorInside(event.target)) {
+    document.getSelection().empty();
+  }
 }
 
 function Pictures({ pictures }) {

@@ -14,9 +14,13 @@ export function getDragAndDropList(...args) {
 
   let dragTimeout, draggedItem, dragStartY, dragStartScrollTop, virtualList, lastCursorY, scrollAnimation;
 
-  const list = ul({ ...props, class: `overflow-y-auto list-none p-0 ${props.class ?? ''}` },
-    children.map((item) => wrapItem(item)),
-  );
+  const list = ul({
+    ...props,
+    onpointermove: cancelDragStart, // eg. scrolling on touch devices
+    ondragstart: preventDefault,
+    oncontextmenu: preventDefault,
+    class: `overflow-y-auto list-none p-0 ${props.class ?? ''}`
+  }, children.map((item) => wrapItem(item)));
 
   return {
     list,
@@ -27,16 +31,22 @@ export function getDragAndDropList(...args) {
     removeItem: (index) => list.removeChild(list.children[index]),
   };
 
+  function cancelDragStart() {
+    if (dragTimeout) {
+      clearTimeout(dragTimeout);
+    }
+  }
+
   function wrapItem(element) {
     return li({
-      onpointerdown,
-      onpointerup,
-      onpointermove,
-      ontouchstart: preventDefault,
+      onmousedown: handlePointerDown,
+      onmouseup: handlePointerUp,
+      ontouchstart: handlePointerDown,
+      ontouchend: handlePointerUp,
     }, element);
   }
 
-  function onpointerdown(event) {
+  function handlePointerDown(event) {
     dragTimeout = setTimeout(() => {
       dragTimeout = null;
       draggedItem = this;
@@ -44,12 +54,13 @@ export function getDragAndDropList(...args) {
       draggedItem.style.zIndex = '1';
       draggedItem.style.background = 'var(--color-neutral)';
       draggedItem.style.opacity = '0.5';
-      dragStartY = event.clientY;
+      dragStartY = getCursorY(event);
       dragStartScrollTop = list.scrollTop;
       virtualList = getChildren();
       lastCursorY = dragStartY;
 
-      document.addEventListener('pointermove', handleDrag);
+      document.addEventListener('mousemove', handleDrag);
+      document.addEventListener('touchmove', handleDrag, { passive: false });
     }, CLICK_AND_HOLD_TIME);
   }
 
@@ -58,7 +69,8 @@ export function getDragAndDropList(...args) {
   }
 
   function handleDrag(event) {
-    const cursorY = event.clientY;
+    event.preventDefault(); // prevent scroll when dragging on touch devices
+    const cursorY = getCursorY(event);
     scrollIfNeeded(cursorY);
     translateDraggedItem(cursorY);
     shiftItemsIfNeeded(cursorY);
@@ -130,16 +142,14 @@ export function getDragAndDropList(...args) {
     element.style.transform = `translateY(${actualDisplacement}px)`;
   }
 
-  function onpointerup(event) {
+  function handlePointerUp() {
     if (dragTimeout) {
       clearTimeout(dragTimeout);
-      if (event.pointerType === 'touch') {
-        event.target.dispatchEvent(new PointerEvent('click', event));
-      }
       return;
     }
 
-    document.removeEventListener('pointermove', handleDrag);
+    document.removeEventListener('mousemove', handleDrag);
+    document.removeEventListener('touchmove', handleDrag);
 
     stopScroll();
 
@@ -165,19 +175,17 @@ export function getDragAndDropList(...args) {
       onupdate(originalIndex, draggedIndex);
     }
   }
+}
 
-  function onpointermove() {
-    if (dragTimeout) {
-      clearTimeout(dragTimeout);
-    }
-  }
+function preventDefault(event) {
+  event.preventDefault();
+}
+
+function getCursorY(event) {
+  return event.clientY ?? event.touches[0].clientY;
 }
 
 function resetTranslation(element) {
   element.style.transition = '';
   element.style.transform = '';
-}
-
-function preventDefault(event) {
-  event.preventDefault();
 }

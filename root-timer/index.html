@@ -13,12 +13,13 @@
 </body>
 
 <script type="module">
+    import { repeatSound } from '/lib/audio.js';
     import { range } from '/lib/utils.js';
     import van from '/third-party/van.js';
 
-    const UPDATE_INTERVAL = 100;
-    const ONE_MINUTE_IN_MS = 60 * 1000;
     const DANGER_COLOR = '#f004';
+    const ONE_MINUTE_IN_MS = 60 * 1000;
+    const UPDATE_INTERVAL = 100;
 
     const defaults = {
         STARTING_TIME: 10,
@@ -58,11 +59,11 @@
                         const updatedTime = times.val[currentPlayer.val] - UPDATE_INTERVAL;
                         times.val = { ...times.val, [currentPlayer.val]: updatedTime };
                         if (updatedTime <= 0) {
-                            playSoundTimes(3);
                             currentPlayerIndex.val = getNextPlayerIndex();
                             if (!currentPlayerIndex.val) {
                                 stop();
                             }
+                            repeatSound(3);
                         }
                     }
                 }, UPDATE_INTERVAL);
@@ -73,7 +74,7 @@
             class: 'px-2 py-1 ml-2 rounded shadow',
             onclick: () => {
                 paused.val = !paused.val;
-                playSoundTimes(1);
+                repeatSound(1);
             }
         }, () => paused.val ? 'resume' : 'pause');
         const nextButton = button({
@@ -82,7 +83,7 @@
                 const bonusTime = (parseInt(bonusTimeInput.value) || defaults.BONUS_TIME) * 1000;
                 times.val = { ...times.val, [currentPlayer.val]: times.val[currentPlayer.val] + bonusTime };
                 currentPlayerIndex.val = getNextPlayerIndex();
-                playSoundTimes(1);
+                repeatSound(1);
             }
         }, 'next');
 
@@ -129,27 +130,6 @@
 
     function getFormattedTime(raw) {
         return new Date(raw).toISOString().substr(14, 5);
-    }
-
-    async function playSoundTimes(repetitions) {
-        const ctx = new AudioContext();
-        for (const _ of range(repetitions)) {
-            await playSoundFor(200, ctx);
-            await wait(200);
-        };
-    }
-
-    function playSoundFor(duration, audioContext) {
-        return new Promise((r) => {
-            const osc = audioContext.createOscillator();
-            osc.connect(audioContext.destination);
-            osc.start();
-            setTimeout(() => { osc.stop(); r(); }, duration);
-        });
-    }
-
-    function wait(duration) {
-        return new Promise((r) => setTimeout(r, duration));
     }
 </script>
 

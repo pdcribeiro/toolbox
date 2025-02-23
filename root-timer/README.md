@@ -1,7 +1,7 @@
 # root-timer
 
 fix
-* error on next
+* ...
 
 features
 * keep track of playing time for each player

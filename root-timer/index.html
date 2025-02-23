@@ -42,9 +42,11 @@
         const bonusTimeInput = input({ placeholder: defaults.BONUS_TIME, class: 'px-2 py-0.5 mb-2 w-10 bg-neutral-50 rounded outline-none' });
         const nameInputs = defaults.NAMES.map((name) => input({ placeholder: name, class: 'px-2 py-0.5 mb-2 w-32 bg-neutral-50 rounded outline-none' }));
 
-        const currentPlayer = van.derive(() => currentPlayerIndex.val !== null && getName(currentPlayerIndex.val));
-        const timeLeft = van.derive(() => currentPlayer.val && times.val[currentPlayer.val]);
-        van.derive(() => document.body.style.backgroundColor = timeLeft.val && timeLeft.val < ONE_MINUTE_IN_MS ? DANGER_COLOR : '');
+        const playing = van.derive(() => currentPlayerIndex.val !== null);
+        const currentPlayer = van.derive(() => playing.val && getName(currentPlayerIndex.val));
+        const timeLeft = van.derive(() => playing.val && times.val[currentPlayer.val]);
+
+        van.derive(() => document.body.style.backgroundColor = playing.val && timeLeft.val < ONE_MINUTE_IN_MS ? DANGER_COLOR : '');
 
         const startButton = button({
             class: 'w-full h-1/2 text-8xl bg-neutral-200 rounded shadow',
@@ -87,7 +89,7 @@
             }
         }, 'next');
 
-        return () => currentPlayerIndex.val === null ? div({ class: 'h-full' },
+        return () => !playing.val ? div({ class: 'h-full' },
             div({ class: 'flex flex-col justify-center items-center h-1/2' },
                 label({ class: 'mb-2' }, 'starting time (minutes)'),
                 startingTimeInput,

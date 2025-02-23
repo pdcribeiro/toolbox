@@ -12,4 +12,8 @@
 !notes/
 !notes/**
 
-!style.css
+!root-timer/
+!root-timer/**
+
+!style/
+!style/**

@@ -58,7 +58,7 @@
                         const updatedTime = times.val[currentPlayer.val] - UPDATE_INTERVAL;
                         times.val = { ...times.val, [currentPlayer.val]: updatedTime };
                         if (updatedTime <= 0) {
-                            playTimesUpSound();
+                            playSoundTimes(3);
                             currentPlayerIndex.val = getNextPlayerIndex();
                             if (!currentPlayerIndex.val) {
                                 stop();
@@ -71,7 +71,10 @@
 
         const pauseButton = button({
             class: 'px-2 py-1 ml-2 rounded shadow',
-            onclick: () => paused.val = !paused.val
+            onclick: () => {
+                paused.val = !paused.val;
+                playSoundTimes(1);
+            }
         }, () => paused.val ? 'resume' : 'pause');
         const nextButton = button({
             class: 'w-full h-1/2 text-8xl bg-neutral-200 rounded shadow',
@@ -79,6 +82,7 @@
                 const bonusTime = (parseInt(bonusTimeInput.value) || defaults.BONUS_TIME) * 1000;
                 times.val = { ...times.val, [currentPlayer.val]: times.val[currentPlayer.val] + bonusTime };
                 currentPlayerIndex.val = getNextPlayerIndex();
+                playSoundTimes(1);
             }
         }, 'next');
 
@@ -127,9 +131,9 @@
         return new Date(raw).toISOString().substr(14, 5);
     }
 
-    async function playTimesUpSound() {
+    async function playSoundTimes(repetitions) {
         const ctx = new AudioContext();
-        for (const _ of range(3)) {
+        for (const _ of range(repetitions)) {
             await playSoundFor(200, ctx);
             await wait(200);
         };

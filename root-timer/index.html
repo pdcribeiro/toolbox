@@ -92,7 +92,7 @@
                     times.val = { ...times.val, [currentPlayer.val]: updatedTime };
                     if (updatedTime <= 0) {
                         currentPlayerIndex.val = getNextPlayerIndex();
-                        if (!currentPlayerIndex.val) {
+                        if (currentPlayerIndex.val === null) {
                             stop();
                         }
                         repeatSound(3);
